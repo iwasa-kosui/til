@@ -10,6 +10,8 @@ import { PostgresArticleResolverByTitle } from './adaptor/postgres/article/artic
 import { PostgresArticleReviewStartedStore } from './adaptor/postgres/article/articleReviewStartedStore.js';
 import type { DB } from './adaptor/postgres/db.js';
 import { ArticleId } from './domain/article/articleId.js';
+import { Title } from './domain/article/title.js';
+import { UserId } from './domain/user/userId.js';
 import { CreateArticleInteractor } from './useCase/createArticle/interactor.js';
 import { PublishArticleInteractor } from './useCase/publishArticle/interactor.js';
 import { StartArticleReviewInteractor } from './useCase/startArticleReview/interactor.js';
@@ -37,7 +39,7 @@ app.post(
   zValidator(
     'form',
     z.object({
-      title: z.string(),
+      title: Title.zodType,
       content: z.string(),
     }),
   ),
@@ -80,7 +82,7 @@ app.post(
     'form',
     z.object({
       id: ArticleId.zodType,
-      reviewer_id: z.string(),
+      reviewer_id: UserId.zodType,
     }),
   ),
   async (c) => {
@@ -98,8 +100,10 @@ app.post(
       const err = res.error;
       switch (err.type) {
         case 'ArticleNotFound':
+        case 'AlreadyDeleted':
           return c.json(err, 404);
-        case 'ArticleInvalidStatus':
+        case 'AlreadyInReview':
+        case 'AlreadyPublished':
           return c.json(err, 400);
         default:
           return assertNever(err);
@@ -137,8 +141,10 @@ app.post(
       const err = res.error;
       switch (err.type) {
         case 'ArticleNotFound':
+        case 'AlreadyDeleted':
           return c.json(err, 404);
-        case 'ArticleInvalidStatus':
+        case 'NotInReview':
+        case 'AlreadyPublished':
           return c.json(err, 400);
         default:
           return assertNever(err);

@@ -1,9 +1,9 @@
 import { Kysely } from 'kysely';
-import type { ArticleResolverById } from '../../../domain/article/articleResolverById.js';
+import type { Article } from '../../../domain/article/index.js';
 import type { DB } from '../db.js';
 import { ArticleRow } from './articleRow.js';
 
-const from = (db: Kysely<DB>): ArticleResolverById => {
+const from = (db: Kysely<DB>): Article.ResolverById => {
   return {
     resolve: async (id) => {
       const article = await db

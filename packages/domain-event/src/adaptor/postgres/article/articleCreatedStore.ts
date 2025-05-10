@@ -1,9 +1,9 @@
 import { Kysely } from 'kysely';
-import type { ArticleCreated } from '../../../domain/article/article.js';
-import type { ArticleCreatedStore } from '../../../domain/article/articleCreatedStore.js';
+import type { ArticleCreated } from '../../../domain/article/create.js';
+import type { Article } from '../../../domain/article/index.js';
 import type { DB } from '../db.js';
 
-const from = (db: Kysely<DB>): ArticleCreatedStore => {
+const from = (db: Kysely<DB>): Article.CreatedStore => {
   return {
     store: async (articleCreated: ArticleCreated) => {
       const article = articleCreated.aggregate;

@@ -32,9 +32,11 @@ export type PublishedArticle =
   }>;
 
 export type DeletedArticle =
-  & Omit<(DraftArticle | InReviewArticle | PublishedArticle), 'status'>
+  & ArticleBase
   & Readonly<{
     status: typeof ArticleStatus['DELETED'];
+    reviewerId?: UserId;
+    publishedAt?: Date;
   }>;
 
 export type Article = DraftArticle | InReviewArticle | PublishedArticle | DeletedArticle;

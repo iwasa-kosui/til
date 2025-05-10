@@ -23,13 +23,13 @@ export const ArticlePublished = {
     }),
 } as const;
 
-export type NotInReviewError = ApplicationError<'NotInReviewError', {
+export type NotInReviewError = ApplicationError<'NotInReview', {
   id: ArticleId;
 }>;
 
 export const NotInReviewError = {
   from: (article: DraftArticle): NotInReviewError => ({
-    type: 'NotInReviewError',
+    type: 'NotInReview',
     message: '記事を公開するにはレビューが必要です',
     detail: {
       id: article.id,
