@@ -1,6 +1,6 @@
 import { err, ok } from 'neverthrow';
 import { randomUUID } from 'node:crypto';
-import { afterEach, beforeEach, describe, expect, test, vi, vitest } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test, vi, vitest } from 'vitest';
 import { Article, type InReviewArticle, type PublishedArticle } from '../../domain/article/article.js';
 import { ArticleId } from '../../domain/article/articleId.js';
 import type { ArticlePublishedStore } from '../../domain/article/articlePublishedStore.js';
@@ -82,11 +82,11 @@ describe('PublishArticleInteractor', () => {
   });
 
   describe('記事の公開に成功すべき場合', () => {
-    beforeEach(() => {
+    beforeAll(() => {
       vi.useFakeTimers();
     });
 
-    afterEach(() => {
+    afterAll(() => {
       vi.useRealTimers();
     });
     const { articleResolverById, articlePublishedStore } = createMocks();
