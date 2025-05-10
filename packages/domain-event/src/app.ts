@@ -10,9 +10,9 @@ import { PostgresArticleResolverByTitle } from './adaptor/postgres/article/artic
 import { PostgresArticleReviewStartedStore } from './adaptor/postgres/article/articleReviewStartedStore.js';
 import type { DB } from './adaptor/postgres/db.js';
 import { ArticleId } from './domain/article/articleId.js';
-import { CreateArticleUseCase } from './useCase/createArticle.js';
-import { PublishArticleUseCase } from './useCase/publishArticle.js';
-import { StartArticleReviewUseCase } from './useCase/startArticleReview.js';
+import { CreateArticleInteractor } from './useCase/createArticle/interactor.js';
+import { PublishArticleInteractor } from './useCase/publishArticle/interactor.js';
+import { StartArticleReviewInteractor } from './useCase/startArticleReview/interactor.js';
 import { assertNever } from './util/assertNever.js';
 
 const app = new Hono();
@@ -42,7 +42,7 @@ app.post(
     }),
   ),
   async (c) => {
-    const useCase = CreateArticleUseCase.from({
+    const useCase = CreateArticleInteractor.from({
       articleResolverById: PostgresArticleResolverById.from(db),
       articleResolverByTitle: PostgresArticleResolverByTitle.from(db),
       articleCreatedStore: PostgresArticleCreatedStore.from(db),
@@ -84,7 +84,7 @@ app.post(
     }),
   ),
   async (c) => {
-    const useCase = StartArticleReviewUseCase.from({
+    const useCase = StartArticleReviewInteractor.from({
       articleResolverById: PostgresArticleResolverById.from(db),
       articleReviewStartedStore: PostgresArticleReviewStartedStore.from(db),
     });
@@ -124,7 +124,7 @@ app.post(
     }),
   ),
   async (c) => {
-    const useCase = PublishArticleUseCase.from({
+    const useCase = PublishArticleInteractor.from({
       articleResolverById: PostgresArticleResolverById.from(db),
       articlePublishedStore: PostgresArticlePublishedStore.from(db),
     });

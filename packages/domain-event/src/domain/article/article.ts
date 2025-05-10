@@ -51,10 +51,13 @@ export type ArticlePublished = ArticleEvent<'ArticlePublished', {
 
 export type ArticleDeleted = ArticleEvent<'ArticleDeleted', { id: ArticleId }, Pick<Article, 'id'>>;
 
-const create = (args: Omit<DraftArticle, 'id' | 'status'>): ArticleCreated =>
+const create = (
+  args: Omit<DraftArticle, 'id' | 'status'>,
+  generateArticleId: () => ArticleId = ArticleId.generate,
+): ArticleCreated =>
   DomainEvent.from('ArticleCreated', args, {
     ...args,
-    id: ArticleId.generate(),
+    id: generateArticleId(),
     status: 'Draft',
   });
 
