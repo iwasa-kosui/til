@@ -1,92 +1,46 @@
 import type { Aggregate } from '../aggregate.js';
-import { DomainEvent } from '../domainEvent.js';
-import { ArticleId } from './articleId.js';
+import type { DomainEvent } from '../domainEvent.js';
+import type { UserId } from '../user/userId.js';
+import type { ArticleId } from './articleId.js';
+import type { ArticleStatus } from './articleStatus.js';
+import type { Title } from './title.js';
 
 type ArticleBase = Aggregate<ArticleId, {
-  title: string;
+  title: Title;
   content: string;
 }>;
 
 export type DraftArticle =
   & ArticleBase
   & Readonly<{
-    status: 'Draft';
+    status: typeof ArticleStatus['DRAFT'];
   }>;
 
 export type InReviewArticle =
   & ArticleBase
   & Readonly<{
-    status: 'InReview';
-    reviewerId: string;
+    status: typeof ArticleStatus['IN_REVIEW'];
+    reviewerId: UserId;
   }>;
 
 export type PublishedArticle =
   & ArticleBase
   & Readonly<{
-    status: 'Published';
-    reviewerId: string;
+    status: typeof ArticleStatus['PUBLISHED'];
+    reviewerId: UserId;
     publishedAt: Date;
   }>;
 
-export type Article = DraftArticle | InReviewArticle | PublishedArticle;
+export type DeletedArticle =
+  & Omit<(DraftArticle | InReviewArticle | PublishedArticle), 'status'>
+  & Readonly<{
+    status: typeof ArticleStatus['DELETED'];
+  }>;
 
-type ArticleEvent<TEventName, TPayload, TArticle extends Article | Pick<Article, 'id'>> = DomainEvent<
+export type Article = DraftArticle | InReviewArticle | PublishedArticle | DeletedArticle;
+
+export type ArticleEvent<TEventName, TPayload, TArticle extends Article | Pick<Article, 'id'>> = DomainEvent<
   TEventName,
   TPayload,
   TArticle
 >;
-
-export type ArticleCreated = ArticleEvent<'ArticleCreated', {
-  title: string;
-  content: string;
-}, DraftArticle>;
-
-export type ArticleReviewStarted = ArticleEvent<'ArticleReviewStarted', {
-  reviewerId: string;
-}, InReviewArticle>;
-
-export type ArticlePublished = ArticleEvent<'ArticlePublished', {
-  publishedAt: Date;
-}, PublishedArticle>;
-
-export type ArticleDeleted = ArticleEvent<'ArticleDeleted', { id: ArticleId }, Pick<Article, 'id'>>;
-
-const create = (
-  args: Omit<DraftArticle, 'id' | 'status'>,
-  generateArticleId: () => ArticleId = ArticleId.generate,
-): ArticleCreated =>
-  DomainEvent.from('ArticleCreated', args, {
-    ...args,
-    id: generateArticleId(),
-    status: 'Draft',
-  });
-
-const startReview = (article: DraftArticle, reviewerId: string): ArticleReviewStarted =>
-  DomainEvent.from('ArticleReviewStarted', { reviewerId }, {
-    ...article,
-    id: article.id,
-    status: 'InReview',
-    reviewerId,
-  });
-
-const publish = (article: InReviewArticle): ArticlePublished => {
-  const publishedAt = new Date();
-  return DomainEvent.from('ArticlePublished', { publishedAt }, {
-    ...article,
-    id: article.id,
-    status: 'Published',
-    publishedAt,
-  });
-};
-
-const deleteArticle = (article: Article): ArticleDeleted =>
-  DomainEvent.from('ArticleDeleted', { id: article.id }, {
-    id: article.id,
-  });
-
-export const Article = {
-  create,
-  startReview,
-  publish,
-  delete: deleteArticle,
-} as const;

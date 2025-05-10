@@ -1,17 +1,14 @@
-import { err, ok, ResultAsync } from 'neverthrow';
-import { Article } from '../../domain/article/article.js';
-import type { ArticleCreatedStore } from '../../domain/article/articleCreatedStore.js';
+import { err, ok } from 'neverthrow';
 import type { ArticleId } from '../../domain/article/articleId.js';
-import type { ArticleResolverById } from '../../domain/article/articleResolverById.js';
-import type { ArticleResolverByTitle } from '../../domain/article/articleResolverByTitle.js';
+import { Article } from '../../domain/article/index.js';
 import { IdDuplicatedError } from './idDuplicatedError.js';
 import { TitleDuplicatedError } from './titleDuplicatedError.js';
 import type { CreateArticleUseCase, UseCaseInput, UseCaseOutput } from './useCase.js';
 
 type Dependencies = Readonly<{
-  articleResolverById: ArticleResolverById;
-  articleResolverByTitle: ArticleResolverByTitle;
-  articleCreatedStore: ArticleCreatedStore;
+  articleResolverById: Article.ResolverById;
+  articleResolverByTitle: Article.ResolverByTitle;
+  articleCreatedStore: Article.CreatedStore;
   generateArticleId?: () => ArticleId;
 }>;
 

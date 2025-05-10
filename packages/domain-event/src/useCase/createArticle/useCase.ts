@@ -1,10 +1,11 @@
 import type { Result } from 'neverthrow';
-import type { ArticleCreated } from '../../domain/article/article.js';
+import type { ArticleCreated } from '../../domain/article/create.js';
+import type { Title } from '../../domain/article/title.js';
 import type { IdDuplicatedError } from './idDuplicatedError.js';
 import type { TitleDuplicatedError } from './titleDuplicatedError.js';
 
 export type UseCaseInput = Readonly<{
-  title: string;
+  title: Title;
   content: string;
 }>;
 

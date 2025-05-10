@@ -1,10 +1,16 @@
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
+import { ZodTypeFactory } from '../../util/zodTypeFactory.js';
 
-const zodType = z.string().uuid().brand('ArticleId');
+const symbol = Symbol('ArticleId');
+const zodType = z.string().uuid().brand(symbol);
+const factory = ZodTypeFactory.from(zodType);
+const generate = (): ArticleId => factory.unsafeParse(randomUUID());
 
-export type ArticleId = z.infer<typeof zodType>;
-export const ArticleId = {
-  zodType,
-  generate: (): ArticleId => zodType.parse(randomUUID()),
+type ArticleId = z.infer<typeof zodType>;
+const ArticleId = {
+  ...factory,
+  generate,
 } as const;
+
+export { ArticleId };

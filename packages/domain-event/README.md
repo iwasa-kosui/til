@@ -1,6 +1,8 @@
-# Domain Event Example
+# ドメインイベントを中心にしたアプリケーション設計
 
-This project demonstrates a Domain-Driven Design (DDD) approach with Domain Events using TypeScript.
+[ドメインイベントを容易に記録できるコード設計を考える - kosui](https://kosui.me/posts/2025/05/06/142842)
+
+このパッケージはドメインイベントを中心にしたコード設計の例を紹介します。
 
 ## Getting Started
 

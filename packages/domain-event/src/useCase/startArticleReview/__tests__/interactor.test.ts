@@ -2,22 +2,27 @@ import { err, ok } from 'neverthrow';
 import assert from 'node:assert';
 import { randomUUID } from 'node:crypto';
 import { describe, expect, test, vitest } from 'vitest';
-import { Article } from '../../domain/article/article.js';
-import { ArticleId } from '../../domain/article/articleId.js';
-import type { ArticleResolverById } from '../../domain/article/articleResolverById.js';
-import type { ArticleReviewStartedStore } from '../../domain/article/articleReviewStartedStore.js';
-import { ArticleInvalidStatusError } from './articleInvalidStatusError.js';
-import { ArticleNotFoundError } from './articleNotFoundError.js';
-import { StartArticleReviewInteractor } from './interactor.js';
+import { ArticleId } from '../../../domain/article/articleId.js';
+import {
+  AlreadyDeletedError,
+  AlreadyInReviewError,
+  AlreadyPublishedError,
+  Article,
+  ArticleNotFoundError,
+  ArticleStatus,
+} from '../../../domain/article/index.js';
+import { Title } from '../../../domain/article/title.js';
+import { UserId } from '../../../domain/user/userId.js';
+import { StartArticleReviewInteractor } from '../interactor.js';
 
 const createMocks = () => {
   const articleResolverById = {
-    resolve: vitest.fn<ArticleResolverById['resolve']>(),
-  } as const satisfies ArticleResolverById;
+    resolve: vitest.fn<Article.ResolverById['resolve']>(),
+  } as const satisfies Article.ResolverById;
 
   const articleReviewStartedStore = {
-    store: vitest.fn<ArticleReviewStartedStore['store']>(),
-  } as const satisfies ArticleReviewStartedStore;
+    store: vitest.fn<Article.ReviewStartedStore['store']>(),
+  } as const satisfies Article.ReviewStartedStore;
 
   return {
     articleResolverById,
@@ -26,9 +31,27 @@ const createMocks = () => {
 };
 
 describe('StartArticleReviewInteractor', () => {
-  const newDraftArticle = () => Article.create({ title: 'タイトル', content: 'コンテンツ' }).aggregate;
-  const newInReviewArticle = () => Article.startReview(newDraftArticle(), randomUUID()).aggregate;
-  const newPublishedArticle = () => Article.publish(newInReviewArticle()).aggregate;
+  const newDraftArticle = (): Article.Draft => ({
+    id: ArticleId.generate(),
+    status: ArticleStatus.DRAFT,
+    title: Title.unsafeParse('タイトル'),
+    content: 'コンテンツ',
+  });
+  const newInReviewArticle = (): Article.InReview => ({
+    id: ArticleId.generate(),
+    status: ArticleStatus.IN_REVIEW,
+    title: Title.unsafeParse('タイトル'),
+    content: 'コンテンツ',
+    reviewerId: UserId.generate(),
+  });
+  const newPublishedArticle = (): Article.Published => ({
+    id: ArticleId.generate(),
+    status: ArticleStatus.PUBLISHED,
+    title: Title.unsafeParse('タイトル'),
+    content: 'コンテンツ',
+    reviewerId: UserId.generate(),
+    publishedAt: new Date(),
+  });
 
   describe('記事が存在しない場合', () => {
     const { articleResolverById, articleReviewStartedStore } = createMocks();
@@ -40,7 +63,7 @@ describe('StartArticleReviewInteractor', () => {
     const articleId = ArticleId.generate();
     articleResolverById.resolve.mockResolvedValueOnce(undefined);
 
-    const result = interactor.run({ id: articleId, reviewerId: randomUUID() });
+    const result = interactor.run({ id: articleId, reviewerId: UserId.generate() });
 
     test('ArticleNotFoundErrorを返すこと', async () => {
       await expect(result).resolves.toEqual(err(ArticleNotFoundError.from({ id: articleId })));
@@ -55,18 +78,32 @@ describe('StartArticleReviewInteractor', () => {
     });
   });
 
+  const inReviewArticle = newInReviewArticle();
+  const publishedArticle = newPublishedArticle();
+  const deletedArticle = Article.delete(publishedArticle).aggregate;
+
   describe.each([
     {
       when: '既にレビュー中',
-      article: newInReviewArticle(),
+      article: inReviewArticle,
+      then: 'AlreadyInReviewError',
+      expected: AlreadyInReviewError.from(inReviewArticle),
     },
     {
       when: '既に公開済み',
-      article: newPublishedArticle(),
+      article: publishedArticle,
+      then: 'AlreadyPublishedError',
+      expected: AlreadyPublishedError.from(publishedArticle),
+    },
+    {
+      when: '既に削除済み',
+      article: deletedArticle,
+      then: 'AlreadyDeletedError',
+      expected: AlreadyDeletedError.from(deletedArticle),
     },
   ])(
     '記事が $when の場合',
-    ({ article }) => {
+    ({ article, expected, then }) => {
       const { articleResolverById, articleReviewStartedStore } = createMocks();
       const interactor = StartArticleReviewInteractor.from({
         articleResolverById,
@@ -74,11 +111,11 @@ describe('StartArticleReviewInteractor', () => {
       });
       const articleId = article.id;
       articleResolverById.resolve.mockResolvedValueOnce(article);
-      const result = interactor.run({ id: articleId, reviewerId: randomUUID() });
+      const result = interactor.run({ id: articleId, reviewerId: UserId.generate() });
 
-      test('ArticleInvalidStatusErrorを返すこと', async () => {
+      test(`${then} を返すこと`, async () => {
         await expect(result).resolves.toEqual(
-          err(ArticleInvalidStatusError.from({ id: articleId, status: article.status })),
+          err(expected),
         );
       });
 
@@ -100,7 +137,7 @@ describe('StartArticleReviewInteractor', () => {
     });
 
     const article = newDraftArticle();
-    const reviewerId = randomUUID();
+    const reviewerId = UserId.generate();
 
     articleResolverById.resolve.mockResolvedValueOnce(article);
     articleReviewStartedStore.store.mockResolvedValueOnce();

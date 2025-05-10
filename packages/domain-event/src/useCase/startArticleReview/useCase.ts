@@ -1,15 +1,20 @@
 import type { Result } from 'neverthrow';
-import type { ArticleReviewStarted } from '../../domain/article/article.js';
 import type { ArticleId } from '../../domain/article/articleId.js';
-import type { ArticleInvalidStatusError } from './articleInvalidStatusError.js';
-import type { ArticleNotFoundError } from './articleNotFoundError.js';
+import type {
+  AlreadyDeletedError,
+  AlreadyInReviewError,
+  AlreadyPublishedError,
+  ArticleNotFoundError,
+} from '../../domain/article/error.js';
+import type { ArticleReviewStarted } from '../../domain/article/startReview.js';
+import type { UserId } from '../../domain/user/userId.js';
 
 export type UseCaseInput = Readonly<{
   id: ArticleId;
-  reviewerId: string;
+  reviewerId: UserId;
 }>;
 
-export type UseCaseErr = ArticleNotFoundError | ArticleInvalidStatusError;
+export type UseCaseErr = ArticleNotFoundError | AlreadyInReviewError | AlreadyPublishedError | AlreadyDeletedError;
 
 export type UseCaseOk = Readonly<{
   articleReviewStarted: ArticleReviewStarted;

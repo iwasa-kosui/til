@@ -1,27 +1,25 @@
 import { err, ok } from 'neverthrow';
 import assert from 'node:assert';
 import { describe, expect, test, vitest } from 'vitest';
-import { Article } from '../../domain/article/article.js';
-import type { ArticleCreatedStore } from '../../domain/article/articleCreatedStore.js';
-import { ArticleId } from '../../domain/article/articleId.js';
-import type { ArticleResolverById } from '../../domain/article/articleResolverById.js';
-import type { ArticleResolverByTitle } from '../../domain/article/articleResolverByTitle.js';
-import { IdDuplicatedError } from './idDuplicatedError.js';
-import { CreateArticleInteractor } from './interactor.js';
-import { TitleDuplicatedError } from './titleDuplicatedError.js';
+import { ArticleId } from '../../../domain/article/articleId.js';
+import { Article } from '../../../domain/article/index.js';
+import { Title } from '../../../domain/article/title.js';
+import { IdDuplicatedError } from '../idDuplicatedError.js';
+import { CreateArticleInteractor } from '../interactor.js';
+import { TitleDuplicatedError } from '../titleDuplicatedError.js';
 
 const createMocks = () => {
   const articleResolverById = {
-    resolve: vitest.fn<ArticleResolverById['resolve']>(),
-  } as const satisfies ArticleResolverById;
+    resolve: vitest.fn<Article.ResolverById['resolve']>(),
+  } as const satisfies Article.ResolverById;
 
   const articleResolverByTitle = {
-    resolve: vitest.fn<ArticleResolverByTitle['resolve']>(),
-  } as const satisfies ArticleResolverByTitle;
+    resolve: vitest.fn<Article.ResolverByTitle['resolve']>(),
+  } as const satisfies Article.ResolverByTitle;
 
   const articleCreatedStore = {
-    store: vitest.fn<ArticleCreatedStore['store']>(),
-  } as const satisfies ArticleCreatedStore;
+    store: vitest.fn<Article.CreatedStore['store']>(),
+  } as const satisfies Article.CreatedStore;
 
   const generateArticleId = vitest.fn<typeof ArticleId['generate']>();
 
@@ -41,11 +39,11 @@ describe('CreateArticleInteractor', () => {
       articleResolverByTitle,
       articleCreatedStore,
     });
-    const duplicated = Article.create({ title: '重複タイトル', content: 'コンテンツ' }).aggregate;
+    const duplicated = Article.create({ title: Title.unsafeParse('重複タイトル'), content: 'コンテンツ' }).aggregate;
     articleResolverByTitle.resolve.mockResolvedValueOnce(duplicated);
 
     const input = {
-      title: '重複タイトル',
+      title: Title.unsafeParse('重複タイトル'),
       content: 'コンテンツ',
     };
     const result = interactor.run(input);
@@ -77,11 +75,14 @@ describe('CreateArticleInteractor', () => {
 
     articleResolverByTitle.resolve.mockResolvedValueOnce(undefined);
 
-    const duplicated = Article.create({ title: '他のタイトル', content: 'コンテンツ' }, generateArticleId).aggregate;
+    const duplicated = Article.create({
+      title: Title.unsafeParse('他のタイトル'),
+      content: 'コンテンツ',
+    }, generateArticleId).aggregate;
     articleResolverById.resolve.mockResolvedValueOnce(duplicated);
 
     const input = {
-      title: 'タイトル',
+      title: Title.unsafeParse('タイトル'),
       content: 'コンテンツ',
     };
     const result = interactor.run(input);
@@ -108,7 +109,7 @@ describe('CreateArticleInteractor', () => {
     });
 
     const input = {
-      title: 'タイトル',
+      title: Title.unsafeParse('タイトル'),
       content: 'コンテンツ',
     };
     articleResolverByTitle.resolve.mockResolvedValueOnce(undefined);
