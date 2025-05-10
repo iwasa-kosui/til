@@ -5,6 +5,9 @@ on:
     branches:
       - main
       - "feature/*"
+defaults:
+  run:
+    working-directory: packages/domain-event
 jobs:
   lint:
     name: Format Check
