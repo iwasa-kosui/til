@@ -1,157 +1,157 @@
-import { zValidator } from '@hono/zod-validator'
-import { Hono } from 'hono'
-import { z } from 'zod'
-import { CreateArticleUseCase } from './useCase/createArticle.js'
-import { PostgresArticleCreatedStore } from './adaptor/postgres/article/articleCreatedStore.js'
-import { Kysely, PostgresDialect } from 'kysely'
-import { Pool } from 'pg'
-import type { DB } from './adaptor/postgres/db.js'
-import { PostgresArticleResolverById } from './adaptor/postgres/article/articleResolverById.js'
-import { PostgresArticleResolverByTitle } from './adaptor/postgres/article/articleResolverByTitle.js'
-import { assertNever } from './util/assertNever.js'
-import { StartArticleReviewUseCase } from './useCase/startArticleReview.js'
-import { PostgresArticleReviewStartedStore } from './adaptor/postgres/article/articleReviewStartedStore.js'
-import { ArticleId } from './domain/article/articleId.js'
-import { PublishArticleUseCase } from './useCase/publishArticle.js'
-import { PostgresArticlePublishedStore } from './adaptor/postgres/article/articlePublishedStore.js'
+import { zValidator } from '@hono/zod-validator';
+import { Hono } from 'hono';
+import { Kysely, PostgresDialect } from 'kysely';
+import { Pool } from 'pg';
+import { z } from 'zod';
+import { PostgresArticleCreatedStore } from './adaptor/postgres/article/articleCreatedStore.js';
+import { PostgresArticlePublishedStore } from './adaptor/postgres/article/articlePublishedStore.js';
+import { PostgresArticleResolverById } from './adaptor/postgres/article/articleResolverById.js';
+import { PostgresArticleResolverByTitle } from './adaptor/postgres/article/articleResolverByTitle.js';
+import { PostgresArticleReviewStartedStore } from './adaptor/postgres/article/articleReviewStartedStore.js';
+import type { DB } from './adaptor/postgres/db.js';
+import { ArticleId } from './domain/article/articleId.js';
+import { CreateArticleUseCase } from './useCase/createArticle.js';
+import { PublishArticleUseCase } from './useCase/publishArticle.js';
+import { StartArticleReviewUseCase } from './useCase/startArticleReview.js';
+import { assertNever } from './util/assertNever.js';
 
-const app = new Hono()
+const app = new Hono();
 
 const dialect = new PostgresDialect({
-    pool: new Pool({
-        database: 'test',
-        host: 'localhost',
-        user: 'postgres',
-        password: 'postgres',
-        port: 5432,
-        max: 10,
-    })
-})
+  pool: new Pool({
+    database: 'test',
+    host: 'localhost',
+    user: 'postgres',
+    password: 'postgres',
+    port: 5432,
+    max: 10,
+  }),
+});
 
 const db = new Kysely<DB>({
-    dialect,
-})
+  dialect,
+});
 
 app.post(
-    '/articles/create',
-    zValidator(
-        'form',
-        z.object({
-            title: z.string(),
-            content: z.string(),
-        })
-    ),
-    async (c) => {
-        const useCase = CreateArticleUseCase.from({
-            articleResolverById: PostgresArticleResolverById.from(db),
-            articleResolverByTitle: PostgresArticleResolverByTitle.from(db),
-            articleCreatedStore: PostgresArticleCreatedStore.from(db),
-        })
+  '/articles/create',
+  zValidator(
+    'form',
+    z.object({
+      title: z.string(),
+      content: z.string(),
+    }),
+  ),
+  async (c) => {
+    const useCase = CreateArticleUseCase.from({
+      articleResolverById: PostgresArticleResolverById.from(db),
+      articleResolverByTitle: PostgresArticleResolverByTitle.from(db),
+      articleCreatedStore: PostgresArticleCreatedStore.from(db),
+    });
 
-        const res = await useCase.run({
-            title: c.req.valid('form').title,
-            content: c.req.valid('form').content,
-        })
+    const res = await useCase.run({
+      title: c.req.valid('form').title,
+      content: c.req.valid('form').content,
+    });
 
-        if (res.isErr()) {
-            const err = res.error
-            switch (err.type) {
-                case 'IdDuplicated':
-                    return c.json(err, 400);
-                case 'TitleDuplicated':
-                    return c.json(err, 400);
-                default:
-                    return assertNever(err);
-            }
-        }
-
-        return c.json(
-            {
-                article: res.value.articleCreated.aggregate,
-            },
-            201,
-        )
+    if (res.isErr()) {
+      const err = res.error;
+      switch (err.type) {
+        case 'IdDuplicated':
+          return c.json(err, 400);
+        case 'TitleDuplicated':
+          return c.json(err, 400);
+        default:
+          return assertNever(err);
+      }
     }
-)
+
+    return c.json(
+      {
+        article: res.value.articleCreated.aggregate,
+      },
+      201,
+    );
+  },
+);
 
 app.post(
-    '/articles/start-review',
-    zValidator(
-        'form',
-        z.object({
-            id: ArticleId.zodType,
-            reviewer_id: z.string(),
-        })
-    ),
-    async (c) => {
-        const useCase = StartArticleReviewUseCase.from({
-            articleResolverById: PostgresArticleResolverById.from(db),
-            articleReviewStartedStore: PostgresArticleReviewStartedStore.from(db),
-        })
+  '/articles/start-review',
+  zValidator(
+    'form',
+    z.object({
+      id: ArticleId.zodType,
+      reviewer_id: z.string(),
+    }),
+  ),
+  async (c) => {
+    const useCase = StartArticleReviewUseCase.from({
+      articleResolverById: PostgresArticleResolverById.from(db),
+      articleReviewStartedStore: PostgresArticleReviewStartedStore.from(db),
+    });
 
-        const res = await useCase.run({
-            id: c.req.valid('form').id,
-            reviewerId: c.req.valid('form').reviewer_id,
-        })
+    const res = await useCase.run({
+      id: c.req.valid('form').id,
+      reviewerId: c.req.valid('form').reviewer_id,
+    });
 
-        if (res.isErr()) {
-            const err = res.error
-            switch (err.type) {
-                case 'ArticleNotFound':
-                    return c.json(err, 404);
-                case 'ArticleInvalidStatus':
-                    return c.json(err, 400);
-                default:
-                    return assertNever(err);
-            }
-        }
-
-        return c.json(
-            {
-                article: res.value.articleReviewStarted.aggregate,
-            },
-            201,
-        )
+    if (res.isErr()) {
+      const err = res.error;
+      switch (err.type) {
+        case 'ArticleNotFound':
+          return c.json(err, 404);
+        case 'ArticleInvalidStatus':
+          return c.json(err, 400);
+        default:
+          return assertNever(err);
+      }
     }
-)
+
+    return c.json(
+      {
+        article: res.value.articleReviewStarted.aggregate,
+      },
+      201,
+    );
+  },
+);
 
 app.post(
-    '/articles/publish',
-    zValidator(
-        'form',
-        z.object({
-            id: ArticleId.zodType,
-        }),
-    ),
-    async (c) => {
-        const useCase = PublishArticleUseCase.from({
-            articleResolverById: PostgresArticleResolverById.from(db),
-            articlePublishedStore: PostgresArticlePublishedStore.from(db),
-        })
+  '/articles/publish',
+  zValidator(
+    'form',
+    z.object({
+      id: ArticleId.zodType,
+    }),
+  ),
+  async (c) => {
+    const useCase = PublishArticleUseCase.from({
+      articleResolverById: PostgresArticleResolverById.from(db),
+      articlePublishedStore: PostgresArticlePublishedStore.from(db),
+    });
 
-        const res = await useCase.run({
-            id: c.req.valid('form').id,
-        })
+    const res = await useCase.run({
+      id: c.req.valid('form').id,
+    });
 
-        if (res.isErr()) {
-            const err = res.error
-            switch (err.type) {
-                case 'ArticleNotFound':
-                    return c.json(err, 404);
-                case 'ArticleInvalidStatus':
-                    return c.json(err, 400);
-                default:
-                    return assertNever(err);
-            }
-        }
-
-        return c.json(
-            {
-                article: res.value.articlePublished.aggregate,
-            },
-            201,
-        )
+    if (res.isErr()) {
+      const err = res.error;
+      switch (err.type) {
+        case 'ArticleNotFound':
+          return c.json(err, 404);
+        case 'ArticleInvalidStatus':
+          return c.json(err, 400);
+        default:
+          return assertNever(err);
+      }
     }
-)
 
-export default app
+    return c.json(
+      {
+        article: res.value.articlePublished.aggregate,
+      },
+      201,
+    );
+  },
+);
+
+export default app;

@@ -1,5 +1,7 @@
-export type Aggregate<Id extends string | number, Props> = Readonly<{
+export type Aggregate<Id extends string | number, Props> =
+  & Readonly<{
     id: Id;
-}> & Readonly<Props>;
+  }>
+  & Readonly<Props>;
 
 export type AnyAggregate = Aggregate<string | number, unknown>;

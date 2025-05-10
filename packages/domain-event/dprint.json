@@ -1,22 +1,14 @@
 {
   "typescript": {
+    "quoteStyle": "alwaysSingle"
   },
-  "json": {
-  },
-  "markdown": {
-  },
-  "toml": {
-  },
-  "malva": {
-  },
-  "markup": {
-  },
-  "yaml": {
-  },
-  "excludes": [
-    "**/node_modules",
-    "**/*-lock.json"
-  ],
+  "json": {},
+  "markdown": {},
+  "toml": {},
+  "malva": {},
+  "markup": {},
+  "yaml": {},
+  "excludes": ["**/node_modules", "**/*-lock.json"],
   "plugins": [
     "https://plugins.dprint.dev/typescript-0.95.1.wasm",
     "https://plugins.dprint.dev/json-0.20.0.wasm",
