@@ -5,15 +5,15 @@ on:
     branches:
       - main
       - "feature/*"
+defaults:
+  run:
+    working-directory: packages/domain-event
 jobs:
   lint:
     name: Format Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Move to packages/domain-event
-        run: cd packages/domain-event
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -50,9 +50,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Move to packages/domain-event
-        run: cd packages/domain-event
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
