@@ -1,5 +1,5 @@
-import type { Article } from "./article.js";
+import type { Article } from './article.js';
 
 export type ArticleResolverByTitle = Readonly<{
-    resolve: (title: string) => Promise<Article | undefined>;
+  resolve: (title: string) => Promise<Article | undefined>;
 }>;
