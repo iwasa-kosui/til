@@ -12,8 +12,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Move to packages/domain-events
-        run: cd packages/domain-events
+      - name: Move to packages/domain-event
+        run: cd packages/domain-event
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -51,8 +51,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Move to packages/domain-events
-        run: cd packages/domain-events
+      - name: Move to packages/domain-event
+        run: cd packages/domain-event
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
