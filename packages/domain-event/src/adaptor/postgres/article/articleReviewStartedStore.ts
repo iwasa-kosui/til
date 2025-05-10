@@ -9,14 +9,12 @@ const from = (db: Kysely<DB>): ArticleReviewStartedStore => {
       const article = articleReviewStarted.aggregate;
       await db.transaction().execute(async (tx) => {
         await tx
-          .insertInto('article')
-          .values({
-            id: article.id,
-            title: article.title,
-            content: article.content,
+          .updateTable('article')
+          .set({
             status: article.status,
             reviewer_id: article.reviewerId,
           })
+          .where('id', '=', article.id)
           .execute();
         await tx
           .insertInto('domain_event')

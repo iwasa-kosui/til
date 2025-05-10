@@ -1,6 +1,5 @@
 import { Kysely } from 'kysely';
-import type { ArticleCreated, ArticlePublished } from '../../../domain/article/article.js';
-import type { ArticleCreatedStore } from '../../../domain/article/articleCreatedStore.js';
+import type { ArticlePublished } from '../../../domain/article/article.js';
 import type { ArticlePublishedStore } from '../../../domain/article/articlePublishedStore.js';
 import type { DB } from '../db.js';
 
@@ -10,15 +9,12 @@ const from = (db: Kysely<DB>): ArticlePublishedStore => {
       const article = articlePublished.aggregate;
       await db.transaction().execute(async (tx) => {
         await tx
-          .insertInto('article')
-          .values({
-            id: article.id,
-            title: article.title,
-            content: article.content,
+          .updateTable('article')
+          .set({
             status: article.status,
-            reviewer_id: article.reviewerId,
             published_at: article.publishedAt,
           })
+          .where('id', '=', article.id)
           .execute();
         await tx
           .insertInto('domain_event')
