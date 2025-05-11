@@ -1,3 +1,4 @@
+import type { ResultAsync } from 'neverthrow';
 import { randomUUID } from 'node:crypto';
 import type { AnyAggregate } from './aggregate.js';
 
@@ -8,6 +9,12 @@ export type DomainEvent<TEventName, TPayload, TAggregate extends AnyAggregate> =
   payload: TPayload;
   aggregate: TAggregate;
 }>;
+
+export type DomainEventStore<TDomainEvent> = TDomainEvent extends
+  DomainEvent<infer TEventName, infer TPayload, infer TAggregate> ? Readonly<{
+    store: (event: DomainEvent<TEventName, TPayload, TAggregate>) => ResultAsync<void, never>;
+  }>
+  : never;
 
 const from = <TEventName, TPayload, TAggregate extends AnyAggregate>(
   eventName: TEventName,

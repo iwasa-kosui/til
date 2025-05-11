@@ -1,4 +1,4 @@
-import { err, ok } from 'neverthrow';
+import { err, ok, okAsync } from 'neverthrow';
 import assert from 'node:assert';
 import { describe, expect, test, vitest } from 'vitest';
 import { ArticleId } from '../../../domain/article/articleId.js';
@@ -10,6 +10,7 @@ import {
   ArticleStatus,
 } from '../../../domain/article/index.js';
 import { Title } from '../../../domain/article/title.js';
+import type { DomainEventStore } from '../../../domain/domainEvent.js';
 import { UserId } from '../../../domain/user/userId.js';
 import { StartArticleReviewInteractor } from '../interactor.js';
 
@@ -19,8 +20,8 @@ const createMocks = () => {
   } as const satisfies Article.ResolverById;
 
   const articleReviewStartedStore = {
-    store: vitest.fn<Article.ReviewStartedStore['store']>(),
-  } as const satisfies Article.ReviewStartedStore;
+    store: vitest.fn<DomainEventStore<Article.ArticleReviewStarted>['store']>(),
+  } as const satisfies DomainEventStore<Article.ArticleReviewStarted>;
 
   return {
     articleResolverById,
@@ -59,7 +60,7 @@ describe('StartArticleReviewInteractor', () => {
     });
 
     const articleId = ArticleId.generate();
-    articleResolverById.resolve.mockResolvedValueOnce(undefined);
+    articleResolverById.resolve.mockReturnValueOnce(okAsync(undefined));
 
     const result = interactor.run({ id: articleId, reviewerId: UserId.generate() });
 
@@ -102,7 +103,7 @@ describe('StartArticleReviewInteractor', () => {
         articleReviewStartedStore,
       });
       const articleId = article.id;
-      articleResolverById.resolve.mockResolvedValueOnce(article);
+      articleResolverById.resolve.mockReturnValueOnce(okAsync(article));
       const result = interactor.run({ id: articleId, reviewerId: UserId.generate() });
 
       test(`${then} を返すこと`, async () => {
@@ -131,8 +132,8 @@ describe('StartArticleReviewInteractor', () => {
     const article = newDraftArticle();
     const reviewerId = UserId.generate();
 
-    articleResolverById.resolve.mockResolvedValueOnce(article);
-    articleReviewStartedStore.store.mockResolvedValueOnce();
+    articleResolverById.resolve.mockReturnValueOnce(okAsync(article));
+    articleReviewStartedStore.store.mockReturnValueOnce(okAsync(undefined));
     const result = interactor.run({ id: article.id, reviewerId });
 
     test('レビュー中の記事を返すこと', async () => {

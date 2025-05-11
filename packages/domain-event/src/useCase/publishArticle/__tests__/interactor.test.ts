@@ -1,10 +1,11 @@
-import { err, ok } from 'neverthrow';
+import { err, ok, okAsync } from 'neverthrow';
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 import { ArticleId } from '../../../domain/article/articleId.js';
 import { ArticleStatus } from '../../../domain/article/articleStatus.js';
 import { AlreadyPublishedError, Article, ArticleNotFoundError } from '../../../domain/article/index.js';
 import { NotInReviewError } from '../../../domain/article/publish.js';
 import { Title } from '../../../domain/article/title.js';
+import type { DomainEventStore } from '../../../domain/domainEvent.js';
 import { UserId } from '../../../domain/user/userId.js';
 import { PublishArticleInteractor } from '../interactor.js';
 
@@ -14,8 +15,8 @@ const createMocks = () => {
   } as const satisfies Article.ResolverById;
 
   const articlePublishedStore = {
-    store: vi.fn<Article.PublishedStore['store']>(),
-  } as const satisfies Article.PublishedStore;
+    store: vi.fn<DomainEventStore<Article.ArticlePublished>['store']>(),
+  } as const satisfies DomainEventStore<Article.ArticlePublished>;
 
   return {
     articleResolverById,
@@ -41,7 +42,7 @@ describe('PublishArticleInteractor', () => {
     });
 
     const articleId = ArticleId.generate();
-    articleResolverById.resolve.mockResolvedValueOnce(undefined);
+    articleResolverById.resolve.mockReturnValueOnce(okAsync(undefined));
 
     const input = { id: articleId };
     const result = interactor.run(input);
@@ -101,7 +102,7 @@ describe('PublishArticleInteractor', () => {
           articlePublishedStore,
         });
         const articleId = article.id;
-        articleResolverById.resolve.mockResolvedValueOnce(article);
+        articleResolverById.resolve.mockReturnValueOnce(okAsync(article));
         const result = interactor.run({ id: articleId });
 
         test(`${then} を返すこと`, async () => {
@@ -143,8 +144,8 @@ describe('PublishArticleInteractor', () => {
       status: ArticleStatus.PUBLISHED,
     } as const satisfies Article.Published;
 
-    articleResolverById.resolve.mockResolvedValueOnce(inReviewArticle);
-    articlePublishedStore.store.mockResolvedValueOnce();
+    articleResolverById.resolve.mockReturnValueOnce(okAsync(inReviewArticle));
+    articlePublishedStore.store.mockReturnValueOnce(okAsync(undefined));
 
     const input = { id: articleId };
     const result = interactor.run(input);

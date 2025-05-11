@@ -1,9 +1,10 @@
-import { err, ok } from 'neverthrow';
+import { err, ok, okAsync } from 'neverthrow';
 import assert from 'node:assert';
 import { describe, expect, test, vitest } from 'vitest';
 import { ArticleId } from '../../../domain/article/articleId.js';
 import { Article } from '../../../domain/article/index.js';
 import { Title } from '../../../domain/article/title.js';
+import type { DomainEventStore } from '../../../domain/domainEvent.js';
 import { IdDuplicatedError } from '../idDuplicatedError.js';
 import { CreateArticleInteractor } from '../interactor.js';
 import { TitleDuplicatedError } from '../titleDuplicatedError.js';
@@ -18,8 +19,8 @@ const createMocks = () => {
   } as const satisfies Article.ResolverByTitle;
 
   const articleCreatedStore = {
-    store: vitest.fn<Article.CreatedStore['store']>(),
-  } as const satisfies Article.CreatedStore;
+    store: vitest.fn<DomainEventStore<Article.ArticleCreated>['store']>(),
+  } as const satisfies DomainEventStore<Article.ArticleCreated>;
 
   const generateArticleId = vitest.fn<typeof ArticleId['generate']>();
 
@@ -40,7 +41,7 @@ describe('CreateArticleInteractor', () => {
       articleCreatedStore,
     });
     const duplicated = Article.create({ title: Title.unsafeParse('重複タイトル'), content: 'コンテンツ' }).aggregate;
-    articleResolverByTitle.resolve.mockResolvedValueOnce(duplicated);
+    articleResolverByTitle.resolve.mockReturnValueOnce(okAsync(duplicated));
 
     const input = {
       title: Title.unsafeParse('重複タイトル'),
@@ -73,13 +74,13 @@ describe('CreateArticleInteractor', () => {
     const articleId = ArticleId.generate();
     generateArticleId.mockReturnValue(articleId);
 
-    articleResolverByTitle.resolve.mockResolvedValueOnce(undefined);
+    articleResolverByTitle.resolve.mockReturnValueOnce(okAsync(undefined));
 
     const duplicated = Article.create({
       title: Title.unsafeParse('他のタイトル'),
       content: 'コンテンツ',
     }, generateArticleId).aggregate;
-    articleResolverById.resolve.mockResolvedValueOnce(duplicated);
+    articleResolverById.resolve.mockReturnValueOnce(okAsync(duplicated));
 
     const input = {
       title: Title.unsafeParse('タイトル'),
@@ -112,8 +113,9 @@ describe('CreateArticleInteractor', () => {
       title: Title.unsafeParse('タイトル'),
       content: 'コンテンツ',
     };
-    articleResolverByTitle.resolve.mockResolvedValueOnce(undefined);
-    articleResolverById.resolve.mockResolvedValueOnce(undefined);
+    articleResolverByTitle.resolve.mockReturnValueOnce(okAsync(undefined));
+    articleResolverById.resolve.mockReturnValueOnce(okAsync(undefined));
+    articleCreatedStore.store.mockReturnValueOnce(okAsync(undefined));
     const result = interactor.run(input);
     test('インタラクターが成功を返すこと', async () => {
       await expect(result).resolves.toEqual(ok({

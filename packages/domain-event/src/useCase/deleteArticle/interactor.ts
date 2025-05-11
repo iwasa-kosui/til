@@ -1,18 +1,19 @@
 import { ResultAsync } from 'neverthrow';
 import { Article } from '../../domain/article/index.js';
+import type { DomainEventStore } from '../../domain/domainEvent.js';
 import type { UseCaseInput, UseCaseOutput } from './useCase.js';
 
 type Dependencies = Readonly<{
-  articleDeletedStore: Article.DeletedStore;
+  articleDeletedStore: DomainEventStore<Article.ArticleDeleted>;
   articleResolverById: Article.ResolverById;
 }>;
 
 const from = ({ articleDeletedStore, articleResolverById }: Dependencies) => {
   const run = async ({ id }: UseCaseInput): Promise<UseCaseOutput> =>
-    ResultAsync.fromSafePromise(articleResolverById.resolve(id))
+    articleResolverById.resolve(id)
       .andThen(Article.ArticleNotFoundError.validate(id))
       .map(Article.delete)
-      .andThrough(articleDeleted => ResultAsync.fromSafePromise(articleDeletedStore.store(articleDeleted)))
+      .andThrough(articleDeletedStore.store)
       .map(articleDeleted => ({ articleDeleted }));
 
   return { run };

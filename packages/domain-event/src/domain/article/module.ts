@@ -12,6 +12,6 @@ export * from './delete.js';
 export * from './error.js';
 export * from './publish.js';
 export * from './reject.js';
-export * from './repository.js';
+export * from './resolver.js';
 export * from './startReview.js';
 export * from './title.js';
