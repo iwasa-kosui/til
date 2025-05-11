@@ -1,20 +1,4 @@
 import type { DraftArticle, InReviewArticle, PublishedArticle } from './article.js';
-import { create } from './create.js';
-import { deleteArticle } from './delete.js';
-import { publish } from './publish.js';
-import { reject } from './reject.js';
-import type {
-  ArticleCreatedStore,
-  ArticleDeletedStore,
-  ArticlePublishedStore,
-  ArticleRejectedStore,
-  ArticleResolverById,
-  ArticleResolverByTitle,
-  ArticleReviewStartedStore,
-} from './repository.js';
-import { startReview } from './startReview.js';
-
-export { create, deleteArticle as delete, publish, reject, startReview };
 
 export type { Article } from './article.js';
 export type Draft = DraftArticle;
@@ -23,13 +7,11 @@ export type Published = PublishedArticle;
 
 export * from './articleId.js';
 export * from './articleStatus.js';
+export * from './create.js';
+export * from './delete.js';
 export * from './error.js';
+export * from './publish.js';
+export * from './reject.js';
+export * from './repository.js';
+export * from './startReview.js';
 export * from './title.js';
-
-export type ResolverById = ArticleResolverById;
-export type ResolverByTitle = ArticleResolverByTitle;
-export type CreatedStore = ArticleCreatedStore;
-export type ReviewStartedStore = ArticleReviewStartedStore;
-export type PublishedStore = ArticlePublishedStore;
-export type DeletedStore = ArticleDeletedStore;
-export type RejectedStore = ArticleRejectedStore;

@@ -5,7 +5,13 @@ import type { ArticleId } from './articleId.js';
 /**
  * 記事削除イベント
  */
-export type ArticleDeleted = ArticleEvent<'ArticleDeleted', Article, { id: ArticleId }>;
+type ArticleDeleted = ArticleEvent<'ArticleDeleted', Article, { id: ArticleId }>;
+const ArticleDeleted = {
+  from: (article: Article): ArticleDeleted =>
+    DomainEvent.from('ArticleDeleted', article, {
+      id: article.id,
+    }),
+} as const;
 
 /**
  * 記事を削除します。
@@ -13,7 +19,6 @@ export type ArticleDeleted = ArticleEvent<'ArticleDeleted', Article, { id: Artic
  * @param article
  * @returns 記事削除イベント
  */
-export const deleteArticle = (article: Article): ArticleDeleted =>
-  DomainEvent.from('ArticleDeleted', article, {
-    id: article.id,
-  });
+const deleteArticle = (article: Article): ArticleDeleted => ArticleDeleted.from(article);
+
+export { ArticleDeleted, deleteArticle as delete };

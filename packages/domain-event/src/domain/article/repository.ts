@@ -7,30 +7,30 @@ import type { ArticleRejected } from './reject.js';
 import type { ArticleReviewStarted } from './startReview.js';
 import type { Title } from './title.js';
 
-export type ArticleCreatedStore = Readonly<{
+export type CreatedStore = Readonly<{
   store: (articleCreated: ArticleCreated) => Promise<void>;
 }>;
 
-export type ArticleReviewStartedStore = Readonly<{
+export type ReviewStartedStore = Readonly<{
   store: (articleReviewStarted: ArticleReviewStarted) => Promise<void>;
 }>;
 
-export type ArticlePublishedStore = Readonly<{
+export type PublishedStore = Readonly<{
   store: (articlePublished: ArticlePublished) => Promise<void>;
 }>;
 
-export type ArticleResolverById = Readonly<{
+export type ResolverById = Readonly<{
   resolve: (id: ArticleId) => Promise<Article | undefined>;
 }>;
 
-export type ArticleResolverByTitle = Readonly<{
+export type ResolverByTitle = Readonly<{
   resolve: (title: Title) => Promise<Article | undefined>;
 }>;
 
-export type ArticleDeletedStore = Readonly<{
+export type DeletedStore = Readonly<{
   store: (articleDeleted: ArticleDeleted) => Promise<void>;
 }>;
 
-export type ArticleRejectedStore = Readonly<{
+export type RejectedStore = Readonly<{
   store: (articleRejected: ArticleRejected) => Promise<void>;
 }>;
