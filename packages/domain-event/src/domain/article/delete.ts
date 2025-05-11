@@ -13,7 +13,7 @@ export type ArticleDeleted = ArticleEvent<'ArticleDeleted', Article, { id: Artic
  * @param article
  * @returns 記事削除イベント
  */
-export const deleteArticle = (article: DraftArticle | InReviewArticle | PublishedArticle): ArticleDeleted =>
+export const deleteArticle = (article: Article): ArticleDeleted =>
   DomainEvent.from('ArticleDeleted', article, {
     id: article.id,
   });

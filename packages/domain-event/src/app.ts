@@ -4,6 +4,7 @@ import { Kysely, PostgresDialect } from 'kysely';
 import { Pool } from 'pg';
 import { z } from 'zod';
 import { PostgresArticleCreatedStore } from './adaptor/postgres/article/articleCreatedStore.js';
+import { PostgresArticleDeletedStore } from './adaptor/postgres/article/articleDeletedStore.js';
 import { PostgresArticlePublishedStore } from './adaptor/postgres/article/articlePublishedStore.js';
 import { PostgresArticleResolverById } from './adaptor/postgres/article/articleResolverById.js';
 import { PostgresArticleResolverByTitle } from './adaptor/postgres/article/articleResolverByTitle.js';
@@ -13,6 +14,7 @@ import { ArticleId } from './domain/article/articleId.js';
 import { Title } from './domain/article/title.js';
 import { UserId } from './domain/user/userId.js';
 import { CreateArticleInteractor } from './useCase/createArticle/interactor.js';
+import { DeleteArticleInteractor } from './useCase/deleteArticle/interactor.js';
 import { PublishArticleInteractor } from './useCase/publishArticle/interactor.js';
 import { StartArticleReviewInteractor } from './useCase/startArticleReview/interactor.js';
 import { assertNever } from './util/assertNever.js';
@@ -154,6 +156,43 @@ app.post(
         article: res.value.articlePublished.aggregate,
       },
       201,
+    );
+  },
+);
+
+app.post(
+  '/articles/delete',
+  zValidator(
+    'form',
+    z.object({
+      id: ArticleId.zodType,
+    }),
+  ),
+  async (c) => {
+    const useCase = DeleteArticleInteractor.from({
+      articleResolverById: PostgresArticleResolverById.from(db),
+      articleDeletedStore: PostgresArticleDeletedStore.from(db),
+    });
+
+    const res = await useCase.run({
+      id: c.req.valid('form').id,
+    });
+
+    if (res.isErr()) {
+      const err = res.error;
+      switch (err.type) {
+        case 'ArticleNotFound':
+          return c.json(err, 404);
+        default:
+          return assertNever(err.type);
+      }
+    }
+
+    return c.json(
+      {
+        article: res.value.articleDeleted.aggregate,
+      },
+      200,
     );
   },
 );
