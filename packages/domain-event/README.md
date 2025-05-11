@@ -19,40 +19,32 @@ pnpm dev
 open http://localhost:3000
 ```
 
-## プロジェクト構成
+## 機能
 
-- `src/domain`: エンティティ、ドメインイベント
-- `src/useCase`: アプリケーションのユースケース
-- `src/adaptor`: ドメインで定義されたインターフェースの実装
-- `src/util`: ユーティリティ関数
+### 記事管理システム
 
-## ドメインモデル
+このプロジェクトは記事管理システムを提供します。
 
-このプロジェクトは以下の概念を持つ記事管理システムを実装しています：
-
-- **記事（Article）**: 異なる状態（下書き、レビュー中、公開済み）を持つメイン集約
-- **ドメインイベント**: ArticleCreated、ArticleReviewStarted、ArticlePublished などのイベント
-
-### 記事(Article)
+- **記事（Article）**: 異なる状態（執筆中、レビュー中、公開済み）を持つ集約
 
 ```mermaid
 classDiagram
     direction LR
 
-    class Draft["Draft"] {
+    class Draft["執筆中"] {
       status: "Draft"
       title: string
       content: string
     }
 
-    class InReview["InReview"] {
+    class InReview["レビュー中"] {
       status: "InReview"
       title: string
       content: string
       reviewerId: string
     }
 
-    class Published["Published"] {
+    class Published["公開済み"] {
       status: "Published"
       title: string
       content: string
@@ -60,6 +52,7 @@ classDiagram
       publishedAt: Date
     }
 
+    開始 ()-- Draft : create() <br> 作成
     Draft --> InReview : startReview() <br> レビュー開始
     InReview --> Published : publish() <br> 公開
     InReview --> Draft: reject() <br> 差し戻し
@@ -67,13 +60,20 @@ classDiagram
 
 ### ドメインイベント
 
-システムはすべての状態変更についてドメインイベントを記録します：
+このシステムの特徴的な点として、「作成」や「レビュー開始」などのエンティティへの変更を伴う操作をすべてデータベースへ記録します。
 
 - `ArticleCreated`: 新しい記事が作成されたとき
 - `ArticleReviewStarted`: 記事のレビューが開始されたとき
 - `ArticlePublished`: 記事が公開されたとき
 - `ArticleDeleted`: 記事が削除されたとき
 - `ArticleRejected`: 記事が差し戻されたとき
+
+## プロジェクト構成
+
+- `src/domain`: エンティティ、ドメインイベント
+- `src/useCase`: アプリケーションのユースケース
+- `src/adaptor`: ドメインで定義されたインターフェースの実装
+- `src/util`: ユーティリティ関数
 
 ## API エンドポイント
 
