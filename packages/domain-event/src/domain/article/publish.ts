@@ -23,13 +23,13 @@ export const ArticlePublished = {
     }),
 } as const;
 
-export type NotInReviewError = ApplicationError<'NotInReview', {
+export type ReviewRequiredError = ApplicationError<'ReviewRequired', {
   id: ArticleId;
 }>;
 
-export const NotInReviewError = {
-  from: (article: DraftArticle): NotInReviewError => ({
-    type: 'NotInReview',
+export const ReviewRequiredError = {
+  from: (article: DraftArticle): ReviewRequiredError => ({
+    type: 'ReviewRequired',
     message: '記事を公開するにはレビューが必要です',
     detail: {
       id: article.id,
@@ -39,16 +39,14 @@ export const NotInReviewError = {
 
 /**
  * 記事を公開します。
- *
- * @returns 記事公開イベント
  */
 export const publish = (
   article: Article,
-): Result<ArticlePublished, NotInReviewError | AlreadyPublishedError> => {
+): Result<ArticlePublished, ReviewRequiredError | AlreadyPublishedError> => {
   const publishedAt = new Date();
   switch (article.status) {
     case ArticleStatus.DRAFT:
-      return err(NotInReviewError.from(article));
+      return err(ReviewRequiredError.from(article));
     case ArticleStatus.IN_REVIEW:
       return ok(ArticlePublished.from(article, publishedAt));
     case ArticleStatus.PUBLISHED:

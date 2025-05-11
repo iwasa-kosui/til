@@ -24,10 +24,6 @@ export const ArticleReviewStarted = {
 
 /**
  * 記事レビューを開始します。
- *
- * @param article 記事
- * @param reviewerId レビュアーのID
- * @returns 記事レビュー開始イベント
  */
 export const startReview = (
   article: Article,

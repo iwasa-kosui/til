@@ -15,9 +15,6 @@ const ArticleDeleted = {
 
 /**
  * 記事を削除します。
- *
- * @param article
- * @returns 記事削除イベント
  */
 const deleteArticle = (article: Article): ArticleDeleted => ArticleDeleted.from(article);
 

@@ -17,7 +17,6 @@ export type ArticleCreated = ArticleEvent<'ArticleCreated', {
  *
  * @param args 記事のプロパティを指定します。
  * @param generateArticleId テストのために、記事IDを生成する関数を渡すことができます。デフォルトでは、ArticleId.generate()が使用されます。
- * @returns 記事作成イベント
  */
 export const create = (
   args: Omit<DraftArticle, 'id' | 'status'>,
