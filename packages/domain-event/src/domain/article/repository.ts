@@ -1,6 +1,7 @@
 import type { Article } from './article.js';
 import type { ArticleId } from './articleId.js';
 import type { ArticleCreated } from './create.js';
+import type { ArticleDeleted } from './delete.js';
 import type { ArticlePublished } from './publish.js';
 import type { ArticleReviewStarted } from './startReview.js';
 import type { Title } from './title.js';
@@ -23,4 +24,8 @@ export type ArticleResolverById = Readonly<{
 
 export type ArticleResolverByTitle = Readonly<{
   resolve: (title: Title) => Promise<Article | undefined>;
+}>;
+
+export type ArticleDeletedStore = Readonly<{
+  store: (articleDeleted: ArticleDeleted) => Promise<void>;
 }>;

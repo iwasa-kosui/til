@@ -4,6 +4,7 @@ import { deleteArticle } from './delete.js';
 import { publish } from './publish.js';
 import type {
   ArticleCreatedStore,
+  ArticleDeletedStore,
   ArticlePublishedStore,
   ArticleResolverById,
   ArticleResolverByTitle,
@@ -28,3 +29,4 @@ export type ResolverByTitle = ArticleResolverByTitle;
 export type CreatedStore = ArticleCreatedStore;
 export type ReviewStartedStore = ArticleReviewStartedStore;
 export type PublishedStore = ArticlePublishedStore;
+export type DeletedStore = ArticleDeletedStore;
