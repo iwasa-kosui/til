@@ -1,10 +1,8 @@
 import { err, ok } from 'neverthrow';
 import assert from 'node:assert';
-import { randomUUID } from 'node:crypto';
 import { describe, expect, test, vitest } from 'vitest';
 import { ArticleId } from '../../../domain/article/articleId.js';
 import {
-  AlreadyDeletedError,
   AlreadyInReviewError,
   AlreadyPublishedError,
   Article,
@@ -94,12 +92,6 @@ describe('StartArticleReviewInteractor', () => {
       article: publishedArticle,
       then: 'AlreadyPublishedError',
       expected: AlreadyPublishedError.from(publishedArticle),
-    },
-    {
-      when: '既に削除済み',
-      article: deletedArticle,
-      then: 'AlreadyDeletedError',
-      expected: AlreadyDeletedError.from(deletedArticle),
     },
   ])(
     '記事が $when の場合',

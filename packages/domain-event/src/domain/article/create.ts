@@ -2,7 +2,6 @@ import { DomainEvent } from '../domainEvent.js';
 import type { ArticleEvent, DraftArticle } from './article.js';
 import { ArticleId } from './articleId.js';
 import { ArticleStatus } from './articleStatus.js';
-import type { ArticleBase } from './base.js';
 
 /**
  * 記事作成イベント

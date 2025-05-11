@@ -100,7 +100,6 @@ app.post(
       const err = res.error;
       switch (err.type) {
         case 'ArticleNotFound':
-        case 'AlreadyDeleted':
           return c.json(err, 404);
         case 'AlreadyInReview':
         case 'AlreadyPublished':
@@ -141,7 +140,6 @@ app.post(
       const err = res.error;
       switch (err.type) {
         case 'ArticleNotFound':
-        case 'AlreadyDeleted':
           return c.json(err, 404);
         case 'NotInReview':
         case 'AlreadyPublished':

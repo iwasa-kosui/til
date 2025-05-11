@@ -1,14 +1,8 @@
 import { err, ok } from 'neverthrow';
-import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 import { ArticleId } from '../../../domain/article/articleId.js';
 import { ArticleStatus } from '../../../domain/article/articleStatus.js';
-import {
-  AlreadyDeletedError,
-  AlreadyPublishedError,
-  Article,
-  ArticleNotFoundError,
-} from '../../../domain/article/index.js';
+import { AlreadyPublishedError, Article, ArticleNotFoundError } from '../../../domain/article/index.js';
 import { NotInReviewError } from '../../../domain/article/publish.js';
 import { Title } from '../../../domain/article/title.js';
 import { UserId } from '../../../domain/user/userId.js';
@@ -96,12 +90,6 @@ describe('PublishArticleInteractor', () => {
         article: publishedArticle,
         then: 'AlreadyPublishedError',
         expected: AlreadyPublishedError.from(publishedArticle),
-      },
-      {
-        when: '既に削除済み',
-        article: deletedArticle,
-        then: 'AlreadyDeletedError',
-        expected: AlreadyDeletedError.from(deletedArticle),
       },
     ])(
       '記事が $when の場合',

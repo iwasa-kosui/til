@@ -4,7 +4,7 @@ import { DomainEvent } from '../domainEvent.js';
 import type { UserId } from '../user/userId.js';
 import type { Article, ArticleEvent, DraftArticle, InReviewArticle } from './article.js';
 import { ArticleStatus } from './articleStatus.js';
-import { AlreadyDeletedError, AlreadyInReviewError, AlreadyPublishedError } from './error.js';
+import { AlreadyInReviewError, AlreadyPublishedError } from './error.js';
 
 /**
  * 記事レビュー開始イベント
@@ -32,7 +32,7 @@ export const ArticleReviewStarted = {
 export const startReview = (
   article: Article,
   reviewerId: UserId,
-): Result<ArticleReviewStarted, AlreadyInReviewError | AlreadyPublishedError | AlreadyDeletedError> => {
+): Result<ArticleReviewStarted, AlreadyInReviewError | AlreadyPublishedError> => {
   switch (article.status) {
     case ArticleStatus.DRAFT:
       return ok(ArticleReviewStarted.from(article, reviewerId));
@@ -40,8 +40,6 @@ export const startReview = (
       return err(AlreadyInReviewError.from(article));
     case ArticleStatus.PUBLISHED:
       return err(AlreadyPublishedError.from(article));
-    case ArticleStatus.DELETED:
-      return err(AlreadyDeletedError.from(article));
     default:
       return assertNever(article);
   }

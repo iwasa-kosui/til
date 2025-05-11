@@ -1,4 +1,4 @@
-import type { DeletedArticle, DraftArticle, InReviewArticle, PublishedArticle } from './article.js';
+import type { DraftArticle, InReviewArticle, PublishedArticle } from './article.js';
 import { create } from './create.js';
 import { deleteArticle } from './delete.js';
 import { publish } from './publish.js';
@@ -17,7 +17,6 @@ export type { Article } from './article.js';
 export type Draft = DraftArticle;
 export type InReview = InReviewArticle;
 export type Published = PublishedArticle;
-export type Deleted = DeletedArticle;
 
 export * from './articleId.js';
 export * from './articleStatus.js';

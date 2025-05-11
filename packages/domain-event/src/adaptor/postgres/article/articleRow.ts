@@ -25,16 +25,10 @@ const publishedZodType = baseZodType.extend({
   reviewer_id: UserId.zodType,
   published_at: z.date(),
 });
-const deletedZodType = baseZodType.extend({
-  status: z.literal(ArticleStatus.DELETED),
-  reviewer_id: UserId.zodType.optional(),
-  published_at: z.date().optional(),
-});
 const articleZodType = z.discriminatedUnion('status', [
   draftZodType,
   inReviewZodType,
   publishedZodType,
-  deletedZodType,
 ]);
 
 export type ArticleRow = z.infer<typeof articleZodType>;
@@ -63,15 +57,6 @@ const fromEntity = (article: Article): ArticleRow => {
         title,
         content,
         status: ArticleStatus.PUBLISHED,
-        reviewer_id: article.reviewerId,
-        published_at: article.publishedAt,
-      };
-    case ArticleStatus.DELETED:
-      return {
-        id,
-        title,
-        content,
-        status: ArticleStatus.DELETED,
         reviewer_id: article.reviewerId,
         published_at: article.publishedAt,
       };
@@ -105,15 +90,6 @@ const toEntity = (articleRow: ArticleRow): Article => {
         title,
         content,
         status: ArticleStatus.PUBLISHED,
-        reviewerId: articleRow.reviewer_id,
-        publishedAt: articleRow.published_at,
-      };
-    case ArticleStatus.DELETED:
-      return {
-        id,
-        title,
-        content,
-        status: ArticleStatus.DELETED,
         reviewerId: articleRow.reviewer_id,
         publishedAt: articleRow.published_at,
       };

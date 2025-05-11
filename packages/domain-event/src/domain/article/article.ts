@@ -10,12 +10,18 @@ type ArticleBase = Aggregate<ArticleId, {
   content: string;
 }>;
 
+/**
+ * 執筆中の記事
+ */
 export type DraftArticle =
   & ArticleBase
   & Readonly<{
     status: typeof ArticleStatus['DRAFT'];
   }>;
 
+/**
+ * レビュー中の記事
+ */
 export type InReviewArticle =
   & ArticleBase
   & Readonly<{
@@ -23,6 +29,9 @@ export type InReviewArticle =
     reviewerId: UserId;
   }>;
 
+/**
+ * 公開済みの記事
+ */
 export type PublishedArticle =
   & ArticleBase
   & Readonly<{
@@ -31,15 +40,7 @@ export type PublishedArticle =
     publishedAt: Date;
   }>;
 
-export type DeletedArticle =
-  & ArticleBase
-  & Readonly<{
-    status: typeof ArticleStatus['DELETED'];
-    reviewerId?: UserId;
-    publishedAt?: Date;
-  }>;
-
-export type Article = DraftArticle | InReviewArticle | PublishedArticle | DeletedArticle;
+export type Article = DraftArticle | InReviewArticle | PublishedArticle;
 
 export type ArticleEvent<TEventName, TPayload, TArticle extends Article | Pick<Article, 'id'>> = DomainEvent<
   TEventName,

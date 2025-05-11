@@ -1,18 +1,11 @@
 import { DomainEvent } from '../domainEvent.js';
-import type {
-  Article,
-  ArticleEvent,
-  DeletedArticle,
-  DraftArticle,
-  InReviewArticle,
-  PublishedArticle,
-} from './article.js';
-import { ArticleStatus } from './articleStatus.js';
+import type { Article, ArticleEvent, DraftArticle, InReviewArticle, PublishedArticle } from './article.js';
+import type { ArticleId } from './articleId.js';
 
 /**
  * 記事削除イベント
  */
-export type ArticleDeleted = ArticleEvent<'ArticleDeleted', Article, DeletedArticle>;
+export type ArticleDeleted = ArticleEvent<'ArticleDeleted', Article, { id: ArticleId }>;
 
 /**
  * 記事を削除します。
@@ -22,6 +15,5 @@ export type ArticleDeleted = ArticleEvent<'ArticleDeleted', Article, DeletedArti
  */
 export const deleteArticle = (article: DraftArticle | InReviewArticle | PublishedArticle): ArticleDeleted =>
   DomainEvent.from('ArticleDeleted', article, {
-    ...article,
-    status: ArticleStatus.DELETED,
+    id: article.id,
   });

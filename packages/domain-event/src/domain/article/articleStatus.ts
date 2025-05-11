@@ -5,7 +5,6 @@ const enumLike = {
   DRAFT: 'DRAFT',
   IN_REVIEW: 'IN_REVIEW',
   PUBLISHED: 'PUBLISHED',
-  DELETED: 'DELETED',
 } as const;
 
 const factory = ZodTypeEnumFactory.from(enumLike);
