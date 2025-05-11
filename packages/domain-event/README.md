@@ -73,6 +73,7 @@ classDiagram
 - `ArticleCreated`: 新しい記事が作成されたとき
 - `ArticleReviewStarted`: 記事のレビューが開始されたとき
 - `ArticlePublished`: 記事が公開されたとき
+- `ArticleDeleted`: 記事が削除されたとき
 
 ## API エンドポイント
 
@@ -81,6 +82,7 @@ classDiagram
 - `POST /articles/create`: 新しい記事を作成する
 - `POST /articles/start-review`: 記事のレビューを開始する
 - `POST /articles/publish`: 記事を公開する
+- `POST /articles/delete`: 記事を削除する
 
 ## データベーススキーマ
 
