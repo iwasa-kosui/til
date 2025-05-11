@@ -26,6 +26,7 @@ const createMocks = () => {
 describe('PublishArticleInteractor', () => {
   beforeAll(() => {
     vi.useFakeTimers();
+    vi.setSystemTime(new Date('2023-01-01T00:00:00Z'));
   });
 
   afterAll(() => {
