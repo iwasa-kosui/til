@@ -11,8 +11,8 @@ docker compose up -d
 ```
 
 ```
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 ```
