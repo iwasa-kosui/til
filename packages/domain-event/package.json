@@ -5,6 +5,7 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
+    "pretest": "npx tsc --noEmit",
     "test": "vitest run",
     "fmt": "dprint fmt",
     "fmt:check": "dprint check"
