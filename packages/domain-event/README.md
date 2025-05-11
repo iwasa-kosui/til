@@ -62,19 +62,8 @@ classDiagram
       publishedAt: Date
     }
 
-    class Deleted["Deleted"] {
-      status: "Deleted"
-      title: string
-      content: string
-      reviewerId?: string
-      publishedAt?: Date
-    }
-
     Draft --> InReview : startReview() <br> レビュー開始
     InReview --> Published : publish() <br> 公開
-    Draft --> Deleted : delete() <br> 削除
-    InReview --> Deleted : delete() <br> 削除
-    Published --> Deleted : delete() <br> 削除
 ```
 
 ### ドメインイベント
