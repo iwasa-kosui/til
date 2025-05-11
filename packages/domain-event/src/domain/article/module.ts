@@ -2,17 +2,19 @@ import type { DraftArticle, InReviewArticle, PublishedArticle } from './article.
 import { create } from './create.js';
 import { deleteArticle } from './delete.js';
 import { publish } from './publish.js';
+import { reject } from './reject.js';
 import type {
   ArticleCreatedStore,
   ArticleDeletedStore,
   ArticlePublishedStore,
+  ArticleRejectedStore,
   ArticleResolverById,
   ArticleResolverByTitle,
   ArticleReviewStartedStore,
 } from './repository.js';
 import { startReview } from './startReview.js';
 
-export { create, deleteArticle as delete, publish, startReview };
+export { create, deleteArticle as delete, publish, reject, startReview };
 
 export type { Article } from './article.js';
 export type Draft = DraftArticle;
@@ -30,3 +32,4 @@ export type CreatedStore = ArticleCreatedStore;
 export type ReviewStartedStore = ArticleReviewStartedStore;
 export type PublishedStore = ArticlePublishedStore;
 export type DeletedStore = ArticleDeletedStore;
+export type RejectedStore = ArticleRejectedStore;

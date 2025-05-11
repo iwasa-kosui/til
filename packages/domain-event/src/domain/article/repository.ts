@@ -3,6 +3,7 @@ import type { ArticleId } from './articleId.js';
 import type { ArticleCreated } from './create.js';
 import type { ArticleDeleted } from './delete.js';
 import type { ArticlePublished } from './publish.js';
+import type { ArticleRejected } from './reject.js';
 import type { ArticleReviewStarted } from './startReview.js';
 import type { Title } from './title.js';
 
@@ -28,4 +29,8 @@ export type ArticleResolverByTitle = Readonly<{
 
 export type ArticleDeletedStore = Readonly<{
   store: (articleDeleted: ArticleDeleted) => Promise<void>;
+}>;
+
+export type ArticleRejectedStore = Readonly<{
+  store: (articleRejected: ArticleRejected) => Promise<void>;
 }>;

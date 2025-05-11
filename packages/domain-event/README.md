@@ -64,6 +64,7 @@ classDiagram
 
     Draft --> InReview : startReview() <br> レビュー開始
     InReview --> Published : publish() <br> 公開
+    InReview --> Draft: reject() <br> 差し戻し
 ```
 
 ### ドメインイベント
@@ -74,6 +75,7 @@ classDiagram
 - `ArticleReviewStarted`: 記事のレビューが開始されたとき
 - `ArticlePublished`: 記事が公開されたとき
 - `ArticleDeleted`: 記事が削除されたとき
+- `ArticleRejected`: 記事が差し戻されたとき
 
 ## API エンドポイント
 
@@ -83,6 +85,7 @@ classDiagram
 - `POST /articles/start-review`: 記事のレビューを開始する
 - `POST /articles/publish`: 記事を公開する
 - `POST /articles/delete`: 記事を削除する
+- `POST /articles/reject`: レビュー中の記事を差し戻す
 
 ## データベーススキーマ
 

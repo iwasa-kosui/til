@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { PostgresArticleCreatedStore } from './adaptor/postgres/article/articleCreatedStore.js';
 import { PostgresArticleDeletedStore } from './adaptor/postgres/article/articleDeletedStore.js';
 import { PostgresArticlePublishedStore } from './adaptor/postgres/article/articlePublishedStore.js';
+import { PostgresArticleRejectedStore } from './adaptor/postgres/article/articleRejectedStore.js';
 import { PostgresArticleResolverById } from './adaptor/postgres/article/articleResolverById.js';
 import { PostgresArticleResolverByTitle } from './adaptor/postgres/article/articleResolverByTitle.js';
 import { PostgresArticleReviewStartedStore } from './adaptor/postgres/article/articleReviewStartedStore.js';
@@ -16,6 +17,7 @@ import { UserId } from './domain/user/userId.js';
 import { CreateArticleInteractor } from './useCase/createArticle/interactor.js';
 import { DeleteArticleInteractor } from './useCase/deleteArticle/interactor.js';
 import { PublishArticleInteractor } from './useCase/publishArticle/interactor.js';
+import { RejectArticleInteractor } from './useCase/rejectArticle/interactor.js';
 import { StartArticleReviewInteractor } from './useCase/startArticleReview/interactor.js';
 import { assertNever } from './util/assertNever.js';
 
@@ -191,6 +193,43 @@ app.post(
     return c.json(
       {
         article: res.value.articleDeleted.aggregate,
+      },
+      200,
+    );
+  },
+);
+
+app.post(
+  '/articles/reject',
+  zValidator(
+    'form',
+    z.object({
+      id: ArticleId.zodType,
+    }),
+  ),
+  async (c) => {
+    const useCase = RejectArticleInteractor.from({
+      articleResolverById: PostgresArticleResolverById.from(db),
+      articleRejectedStore: PostgresArticleRejectedStore.from(db),
+    });
+    const res = await useCase.run({
+      id: c.req.valid('form').id,
+    });
+    if (res.isErr()) {
+      const err = res.error;
+      switch (err.type) {
+        case 'ArticleNotFound':
+          return c.json(err, 404);
+        case 'StillDraft':
+        case 'AlreadyPublished':
+          return c.json(err, 400);
+        default:
+          return assertNever(err);
+      }
+    }
+    return c.json(
+      {
+        article: res.value.articleRejected.aggregate,
       },
       200,
     );
