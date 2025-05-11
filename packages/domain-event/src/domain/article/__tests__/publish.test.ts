@@ -1,6 +1,6 @@
 import { err, ok } from 'neverthrow';
 import { describe, expect, it } from 'vitest';
-import { AlreadyPublishedError, Article, NotInReviewError, StillDraftError } from '../index.js';
+import { AlreadyPublishedError, Article, ReviewRequiredError, StillDraftError } from '../index.js';
 import { DummyArticle } from './dummyArticle.js';
 
 const draft = DummyArticle.newDraft();
@@ -13,7 +13,7 @@ describe('Article.publish', () => {
       article: draft,
       when: Article.ArticleStatus.DRAFT,
       then: '失敗',
-      expected: err(NotInReviewError.from(draft)),
+      expected: err(ReviewRequiredError.from(draft)),
     },
     {
       article: inReview,

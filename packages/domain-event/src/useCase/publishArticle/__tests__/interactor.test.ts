@@ -3,7 +3,7 @@ import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 import { ArticleId } from '../../../domain/article/articleId.js';
 import { ArticleStatus } from '../../../domain/article/articleStatus.js';
 import { AlreadyPublishedError, Article, ArticleNotFoundError } from '../../../domain/article/index.js';
-import { NotInReviewError } from '../../../domain/article/publish.js';
+import { ReviewRequiredError } from '../../../domain/article/publish.js';
 import { Title } from '../../../domain/article/title.js';
 import type { DomainEventStore } from '../../../domain/domainEvent.js';
 import { UserId } from '../../../domain/user/userId.js';
@@ -84,8 +84,8 @@ describe('PublishArticleInteractor', () => {
       {
         when: 'まだレビューが開始されていない',
         article: draftArticle,
-        then: 'NotInReviewError',
-        expected: NotInReviewError.from(draftArticle),
+        then: 'ReviewRequiredError',
+        expected: ReviewRequiredError.from(draftArticle),
       },
       {
         when: '既に公開済み',

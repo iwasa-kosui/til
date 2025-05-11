@@ -1,7 +1,7 @@
 import type { Result } from 'neverthrow';
 import type { ArticleId } from '../../domain/article/articleId.js';
 import type { AlreadyPublishedError, ArticleNotFoundError } from '../../domain/article/error.js';
-import type { ArticlePublished, NotInReviewError } from '../../domain/article/publish.js';
+import type { ArticlePublished, ReviewRequiredError } from '../../domain/article/publish.js';
 
 export type UseCaseInput = Readonly<{
   id: ArticleId;
@@ -9,7 +9,7 @@ export type UseCaseInput = Readonly<{
 
 export type UseCaseErr =
   | ArticleNotFoundError
-  | NotInReviewError
+  | ReviewRequiredError
   | AlreadyPublishedError;
 
 export type UseCaseOk = Readonly<{

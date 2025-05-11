@@ -145,7 +145,7 @@ app.post(
       switch (err.type) {
         case 'ArticleNotFound':
           return c.json(err, 404);
-        case 'NotInReview':
+        case 'ReviewRequired':
         case 'AlreadyPublished':
           return c.json(err, 400);
         default:
