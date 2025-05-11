@@ -2,12 +2,13 @@ import { DomainEvent } from '../domainEvent.js';
 import type { ArticleEvent, DraftArticle } from './article.js';
 import { ArticleId } from './articleId.js';
 import { ArticleStatus } from './articleStatus.js';
+import type { Title } from './title.js';
 
 /**
  * 記事作成イベント
  */
 export type ArticleCreated = ArticleEvent<'ArticleCreated', {
-  title: string;
+  title: Title;
   content: string;
 }, DraftArticle>;
 
