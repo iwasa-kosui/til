@@ -1,13 +1,14 @@
 import { Kysely } from 'kysely';
-import type { Article } from '../../../domain/article/index.js';
+import { ResultAsync } from 'neverthrow';
 import type { ArticlePublished } from '../../../domain/article/publish.js';
+import type { DomainEventStore } from '../../../domain/domainEvent.js';
 import type { DB } from '../db.js';
 
-const from = (db: Kysely<DB>): Article.PublishedStore => {
-  return {
-    store: async (articlePublished: ArticlePublished) => {
-      const article = articlePublished.aggregate;
-      await db.transaction().execute(async (tx) => {
+const from = (db: Kysely<DB>): DomainEventStore<ArticlePublished> => ({
+  store: (articlePublished: ArticlePublished) => {
+    const article = articlePublished.aggregate;
+    return ResultAsync.fromSafePromise(
+      db.transaction().execute(async (tx) => {
         await tx
           .updateTable('article')
           .set({
@@ -26,10 +27,10 @@ const from = (db: Kysely<DB>): Article.PublishedStore => {
             aggregate: articlePublished.aggregate,
           })
           .execute();
-      });
-    },
-  };
-};
+      }),
+    );
+  },
+});
 
 export const PostgresArticlePublishedStore = {
   from,

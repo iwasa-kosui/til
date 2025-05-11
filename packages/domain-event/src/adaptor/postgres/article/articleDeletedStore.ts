@@ -1,13 +1,14 @@
 import { Kysely } from 'kysely';
+import { ResultAsync } from 'neverthrow';
 import type { ArticleDeleted } from '../../../domain/article/delete.js';
-import type { Article } from '../../../domain/article/index.js';
+import type { DomainEventStore } from '../../../domain/domainEvent.js';
 import type { DB } from '../db.js';
 
-const from = (db: Kysely<DB>): Article.DeletedStore => {
-  return {
-    store: async (articleDeleted: ArticleDeleted) => {
-      const article = articleDeleted.aggregate;
-      await db.transaction().execute(async (tx) => {
+const from = (db: Kysely<DB>): DomainEventStore<ArticleDeleted> => ({
+  store: (articleDeleted: ArticleDeleted) => {
+    const article = articleDeleted.aggregate;
+    return ResultAsync.fromSafePromise(
+      db.transaction().execute(async (tx) => {
         await tx
           .deleteFrom('article')
           .where('id', '=', article.id)
@@ -22,10 +23,10 @@ const from = (db: Kysely<DB>): Article.DeletedStore => {
             aggregate: articleDeleted.aggregate,
           })
           .execute();
-      });
-    },
-  };
-};
+      }),
+    );
+  },
+});
 
 export const PostgresArticleDeletedStore = {
   from,
