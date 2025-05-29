@@ -19,7 +19,9 @@ import { DeleteArticleInteractor } from './useCase/deleteArticle/interactor.js';
 import { PublishArticleInteractor } from './useCase/publishArticle/interactor.js';
 import { RejectArticleInteractor } from './useCase/rejectArticle/interactor.js';
 import { StartArticleReviewInteractor } from './useCase/startArticleReview/interactor.js';
+import { UnpublishArticleInteractor } from './useCase/unpublishArticle/interactor.js';
 import { assertNever } from './util/assertNever.js';
+import { PostgresArticleUnpublishedStore } from './adaptor/postgres/article/articleUnpublishedStore.js';
 
 const app = new Hono();
 
@@ -232,6 +234,46 @@ app.post(
         article: res.value.articleRejected.aggregate,
       },
       200,
+    );
+  },
+);
+
+app.post(
+  '/articles/unpublish',
+  zValidator(
+    'form',
+    z.object({
+      id: ArticleId.zodType,
+    }),
+  ),
+  async (c) => {
+    const useCase = UnpublishArticleInteractor.from({
+      articleResolverById: PostgresArticleResolverById.from(db),
+      articleUnpublishedStore: PostgresArticleUnpublishedStore.from(db),
+    });
+
+    const res = await useCase.run({
+      id: c.req.valid('form').id,
+    });
+
+    if (res.isErr()) {
+      const err = res.error;
+      switch (err.type) {
+        case 'ArticleNotFound':
+          return c.json(err, 404);
+        case 'StillDraft':
+        case 'AlreadyInReview':
+          return c.json(err, 400);
+        default:
+          return assertNever(err);
+      }
+    }
+
+    return c.json(
+      {
+        article: res.value.articleUnpublished.aggregate,
+      },
+      201,
     );
   },
 );
