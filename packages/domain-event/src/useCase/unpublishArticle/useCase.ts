@@ -4,20 +4,20 @@ import type { AlreadyInReviewError, ArticleNotFoundError, StillDraftError } from
 import type { ArticleUnpublished } from '../../domain/article/unpublish.js';
 
 export type UseCaseInput = Readonly<{
-    id: ArticleId;
+  id: ArticleId;
 }>;
 
 export type UseCaseErr =
-    | ArticleNotFoundError
-    | AlreadyInReviewError
-    | StillDraftError;
+  | ArticleNotFoundError
+  | AlreadyInReviewError
+  | StillDraftError;
 
 export type UseCaseOk = Readonly<{
-    articleUnpublished: ArticleUnpublished;
+  articleUnpublished: ArticleUnpublished;
 }>;
 
 export type UseCaseOutput = Result<UseCaseOk, UseCaseErr>;
 
 export type UnpublishArticleUseCase = Readonly<{
-    run: (input: UseCaseInput) => Promise<UseCaseOutput>;
+  run: (input: UseCaseInput) => Promise<UseCaseOutput>;
 }>;

@@ -10,6 +10,7 @@ import { PostgresArticleRejectedStore } from './adaptor/postgres/article/article
 import { PostgresArticleResolverById } from './adaptor/postgres/article/articleResolverById.js';
 import { PostgresArticleResolverByTitle } from './adaptor/postgres/article/articleResolverByTitle.js';
 import { PostgresArticleReviewStartedStore } from './adaptor/postgres/article/articleReviewStartedStore.js';
+import { PostgresArticleUnpublishedStore } from './adaptor/postgres/article/articleUnpublishedStore.js';
 import type { DB } from './adaptor/postgres/db.js';
 import { ArticleId } from './domain/article/articleId.js';
 import { Title } from './domain/article/title.js';
@@ -21,7 +22,6 @@ import { RejectArticleInteractor } from './useCase/rejectArticle/interactor.js';
 import { StartArticleReviewInteractor } from './useCase/startArticleReview/interactor.js';
 import { UnpublishArticleInteractor } from './useCase/unpublishArticle/interactor.js';
 import { assertNever } from './util/assertNever.js';
-import { PostgresArticleUnpublishedStore } from './adaptor/postgres/article/articleUnpublishedStore.js';
 
 const app = new Hono();
 
