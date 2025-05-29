@@ -68,6 +68,7 @@ classDiagram
 - `ArticlePublished`: 記事が公開されたとき
 - `ArticleDeleted`: 記事が削除されたとき
 - `ArticleRejected`: 記事が差し戻されたとき
+- `ArticleUnpublished`: 記事の公開が取り消されたとき
 
 ## プロジェクト構成
 
@@ -85,6 +86,7 @@ classDiagram
 - `POST /articles/publish`: 記事を公開する
 - `POST /articles/delete`: 記事を削除する
 - `POST /articles/reject`: レビュー中の記事を差し戻す
+- `POST /articles/unpublish`: 記事の公開を取り消す
 
 ## データベーススキーマ
 
