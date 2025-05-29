@@ -1,7 +1,7 @@
 import type { Result } from 'neverthrow';
 import type { ArticleId } from '../../domain/article/articleId.js';
-import type { AlreadyPublishedError, ArticleNotFoundError } from '../../domain/article/error.js';
-import type { ArticleRejected, StillDraftError } from '../../domain/article/reject.js';
+import type { AlreadyPublishedError, ArticleNotFoundError, StillDraftError } from '../../domain/article/error.js';
+import type { ArticleRejected } from '../../domain/article/reject.js';
 
 export type UseCaseInput = Readonly<{
   id: ArticleId;
