@@ -56,6 +56,7 @@ classDiagram
     Draft --> InReview : startReview() <br> レビュー開始
     InReview --> Published : publish() <br> 公開
     InReview --> Draft: reject() <br> 差し戻し
+    Published --> InReview: unpublish() <br> 公開取り消し
 ```
 
 ### ドメインイベント
