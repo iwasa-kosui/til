@@ -38,7 +38,7 @@ describe('Article.publish', () => {
       expected: err(AlreadyPublishedError.from(published)),
     },
   ])('記事の状態が $when の場合', ({ article, then, expected }) => {
-    it(`記事の削除が ${then} する`, () => {
+    it(`記事の公開が ${then} する`, () => {
       const res = Article.publish(article);
       expect(res).toEqual(expected);
     });
