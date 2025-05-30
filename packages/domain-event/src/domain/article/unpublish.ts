@@ -11,7 +11,7 @@ import { AlreadyInReviewError, StillDraftError } from './error.js';
 export type ArticleUnpublished = ArticleEvent<'ArticleUnpublished', {}, InReviewArticle>;
 
 export const ArticleUnpublished = {
-  from: (article: PublishedArticle): ArticleUnpublished =>
+  from: ({ publishedAt: _, ...article }: PublishedArticle): ArticleUnpublished =>
     DomainEvent.from('ArticleUnpublished', {}, {
       ...article,
       status: ArticleStatus.IN_REVIEW,

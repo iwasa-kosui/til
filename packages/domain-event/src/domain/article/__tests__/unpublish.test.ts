@@ -31,6 +31,7 @@ describe('Article.unpublish', () => {
         aggregate: {
           ...published,
           status: Article.ArticleStatus.IN_REVIEW,
+          publishedAt: undefined,
         },
       })),
     },
