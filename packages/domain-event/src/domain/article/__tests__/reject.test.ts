@@ -38,7 +38,7 @@ describe('Article.reject', () => {
       expected: err(AlreadyPublishedError.from(published)),
     },
   ])('記事の状態が $when の場合', ({ article, then, expected }) => {
-    it(`記事の削除が ${then} する`, () => {
+    it(`記事の差し戻しが ${then} する`, () => {
       const res = Article.reject(article);
       expect(res).toEqual(expected);
     });

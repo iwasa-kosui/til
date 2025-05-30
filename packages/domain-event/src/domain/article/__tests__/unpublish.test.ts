@@ -1,45 +1,43 @@
 import { err, ok } from 'neverthrow';
 import { describe, expect, it } from 'vitest';
-import { AlreadyPublishedError, Article, ReviewRequiredError, StillDraftError } from '../index.js';
+import { AlreadyInReviewError, Article, ReviewRequiredError, StillDraftError } from '../index.js';
 import { DummyArticle } from './dummyArticle.js';
 
 const draft = DummyArticle.newDraft();
 const inReview = DummyArticle.newInReview();
 const published = DummyArticle.newPublished();
 
-describe('Article.publish', () => {
+describe('Article.unpublish', () => {
   describe.each([
     {
       article: draft,
       when: Article.ArticleStatus.DRAFT,
       then: '失敗',
-      expected: err(ReviewRequiredError.from(draft)),
+      expected: err(StillDraftError.from(draft)),
     },
     {
       article: inReview,
       when: Article.ArticleStatus.IN_REVIEW,
-      then: '成功',
-      expected: ok(expect.objectContaining({
-        eventName: 'ArticlePublished',
-        payload: {
-          publishedAt: expect.any(Date),
-        },
-        aggregate: {
-          ...inReview,
-          publishedAt: expect.any(Date),
-          status: Article.ArticleStatus.PUBLISHED,
-        },
-      })),
+      then: '失敗',
+      expected: err(AlreadyInReviewError.from(inReview)),
     },
     {
       article: published,
       when: Article.ArticleStatus.PUBLISHED,
-      then: '失敗',
-      expected: err(AlreadyPublishedError.from(published)),
+      then: '成功',
+      expected: ok(expect.objectContaining({
+        eventName: 'ArticleUnpublished',
+        payload: {},
+        aggregate: {
+          ...published,
+          status: Article.ArticleStatus.IN_REVIEW,
+          publishedAt: undefined,
+        },
+      })),
     },
   ])('記事の状態が $when の場合', ({ article, then, expected }) => {
-    it(`記事の公開が ${then} する`, () => {
-      const res = Article.publish(article);
+    it(`記事の公開取り消しが ${then} する`, () => {
+      const res = Article.unpublish(article);
       expect(res).toEqual(expected);
     });
   });
