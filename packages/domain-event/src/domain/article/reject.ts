@@ -1,11 +1,10 @@
 import { err, ok, type Result } from 'neverthrow';
 import { assertNever } from '../../util/assertNever.js';
-import type { ApplicationError } from '../applicationError.js';
 import { DomainEvent } from '../domainEvent.js';
 import type { Article, ArticleEvent, DraftArticle, InReviewArticle } from './article.js';
 import type { ArticleId } from './articleId.js';
 import { ArticleStatus } from './articleStatus.js';
-import { AlreadyPublishedError } from './error.js';
+import { AlreadyPublishedError, StillDraftError } from './error.js';
 
 type ArticleRejected = ArticleEvent<'ArticleRejected', {
   id: ArticleId;
@@ -26,22 +25,6 @@ const ArticleRejected = {
   },
 } as const;
 
-type StillDraftError = ApplicationError<'StillDraft', {
-  article: DraftArticle;
-}>;
-
-const StillDraftError = {
-  from: (article: DraftArticle): StillDraftError => {
-    return {
-      type: 'StillDraft',
-      message: 'この記事はまだ執筆中です',
-      detail: {
-        article,
-      },
-    };
-  },
-} as const;
-
 const reject = (article: Article): Result<ArticleRejected, StillDraftError | AlreadyPublishedError> => {
   switch (article.status) {
     case ArticleStatus.IN_REVIEW:
@@ -55,4 +38,4 @@ const reject = (article: Article): Result<ArticleRejected, StillDraftError | Alr
   }
 };
 
-export { ArticleRejected, reject, StillDraftError };
+export { ArticleRejected, reject };
