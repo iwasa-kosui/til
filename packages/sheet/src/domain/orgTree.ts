@@ -1,5 +1,8 @@
-import type { OrgTreeId } from "./orgTreeId.js";
-import type { OrgUnitId } from "./orgUnitId.js"
+import { ok, type Result } from "neverthrow";
+import type { Aggregate } from "./aggregate.js";
+import { DomainEvent } from "./domainEvent.js";
+import { OrgTreeId } from "./orgTreeId.js";
+import { OrgUnitId } from "./orgUnitId.js"
 
 type Closure = Readonly<{
   ancestor: OrgUnitId;
@@ -12,6 +15,60 @@ export type OrgTree = Readonly<{
   root: OrgUnitId;
   closures: ReadonlyArray<Closure>;
 }>
+
+type OrgTreeAggregate = Aggregate<OrgTreeId, OrgTree>;
+const aggregate = (orgTree: OrgTree): OrgTreeAggregate => ({
+  id: orgTree.orgTreeId,
+  state: orgTree,
+});
+
+type OrgTreeEventOf<TEventName, TPayload> = DomainEvent<
+  TEventName,
+  TPayload,
+  OrgTreeAggregate
+>
+type OrgTreeCreated = OrgTreeEventOf<
+  "OrgTreeCreated",
+  {
+    root: OrgUnitId;
+  }
+>
+type OrgTreeAdded = OrgTreeEventOf<
+  "OrgTreeAdded",
+  {
+    parent: OrgUnitId;
+    child: OrgUnitId;
+  }
+>
+type OrgTreeRemoved = OrgTreeEventOf<
+  "OrgTreeRemoved",
+  {
+    orgUnitId: OrgUnitId;
+  }
+>
+export type OrgTreeEvent =
+  | OrgTreeCreated
+  | OrgTreeAdded
+  | OrgTreeRemoved;
+
+type State = Readonly<{
+  orgTree: OrgTree;
+  events: ReadonlyArray<OrgTreeEvent>;
+}>
+type Acc<E> = (v: OrgTree) => Result<OrgTreeEvent, E>;
+
+const newState = (event: OrgTreeEvent): State => ({
+  orgTree: event.aggregate.state,
+  events: [event],
+});
+
+const reduceState = <E>(acc: Acc<E>) => (state: State) => 
+  acc(state.orgTree)
+    .map(event => ({
+      orgTree: event.aggregate.state,
+      events: [...state.events, event],
+    }))
+
 
 const findAncestors = (
   child: OrgUnitId,
@@ -44,10 +101,28 @@ const findParent = (
   return closure ? closure.ancestor : undefined;
 }
 
+const create = (
+  root: OrgUnitId,
+): Result<OrgTreeCreated, never> => {
+  const orgTreeId = OrgTreeId.generate();
+  const event = DomainEvent.from('OrgTreeCreated' as const, {
+    root,
+  }, aggregate({
+    orgTreeId,
+    root,
+    closures: [{
+      ancestor: root,
+      descendant: root,
+      depth: 0,
+    }],
+  }));
+  return ok(event);
+}
+
 const add = (
   parent: OrgUnitId,
   child: OrgUnitId,
-) => (orgTree: OrgTree): OrgTree => {
+) => (orgTree: OrgTree): Result<OrgTreeAdded, never> => {
   const closuresOfParent = findAncestors(parent)(orgTree);
   const childAncestorClosures = closuresOfParent.map(
     (closure): Closure => ({
@@ -62,7 +137,7 @@ const add = (
     depth: 0,
   } as const satisfies Closure;
 
-  return {
+  const newOrgTree = {
     ...orgTree,
     closures: [
       ...orgTree.closures,
@@ -70,6 +145,12 @@ const add = (
       childSelfClosure,
     ],
   };
+  return ok(
+    DomainEvent.from('OrgTreeAdded' as const, {
+      parent,
+      child,
+    }, aggregate(newOrgTree)),
+  )
 }
 
 const removeWithDescendants = (
@@ -86,10 +167,22 @@ const removeWithDescendants = (
 }
 
 export const OrgTree = {
+  new: (orgRoot: OrgUnitId): OrgTree => ({
+    orgTreeId: OrgTreeId.generate(),
+    root: orgRoot,
+    closures: [{
+      ancestor: orgRoot,
+      descendant: orgRoot,
+      depth: 0,
+    }],
+  }),
+  create,
   findAncestors,
   findDescendants,
   findChildren,
   findParent,
   add,
   removeWithDescendants,
+  newState,
+  reduceState,
 } as const
